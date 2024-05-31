@@ -1,0 +1,9 @@
+# /etc/transit-agent/compose.yaml
+
+services:
+  transit_agent:
+    image: tvkain/transit-agent:latest
+    ports:
+      - "3000:80"  # Forward host port 8080 to container port 80
+    environment:
+      ENVIRONMENT: "prod"
