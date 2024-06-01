@@ -1,15 +1,12 @@
+from datetime import datetime
+
 from typing import Optional
 
-from datetime import datetime
 from pydantic import BaseModel
 from pydantic import ConfigDict
 
 
-class TransitGatewayGetInput(BaseModel):
-    id: str
-
-
-class TransitGatewayGetOutput(BaseModel):
+class TransitGatewayGetResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     id: str

@@ -5,11 +5,16 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 
 
-class TransitGatewayGetInput(BaseModel):
+class TransitGatewayUpdateInput(BaseModel):
+
     id: str
+    name: Optional[str] = None
+    vytransit_id: Optional[str] = None
+    operating_status: Optional[str] = None
+    provisioning_status: Optional[str] = None
 
 
-class TransitGatewayGetOutput(BaseModel):
+class TransitGatewayUpdatetOutput(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     id: str

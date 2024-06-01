@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from transit.api.routers import transit_gateway
 
+from transit.api.routers.transit_gateway import router
 
 api_router = APIRouter()
-api_router.include_router(transit_gateway.router)
+api_router.include_router(router.router)

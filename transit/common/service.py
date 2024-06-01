@@ -36,6 +36,7 @@ def prepare_configuration(argv):
 
     print("Configuration loaded")
 
+    """
     for k, v in cfg.CONF.items():
 
         if isinstance(v, cfg.ConfigOpts.GroupAttr):
@@ -46,6 +47,7 @@ def prepare_configuration(argv):
             print(f"{k} = {v}")
 
         print()
+    """
 
 
 def prepare_rpc():

@@ -5,11 +5,13 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 
 
-class TransitGatewayGetInput(BaseModel):
-    id: str
+class TransitGatewayUpdateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: Optional[str]
 
 
-class TransitGatewayGetOutput(BaseModel):
+class TransitGatewayUpdatetResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     id: str

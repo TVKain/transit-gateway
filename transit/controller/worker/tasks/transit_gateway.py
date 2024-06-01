@@ -5,7 +5,13 @@ from oslo_config import cfg
 
 from transit.controller.drivers.compute.drivers.nova_driver import NovaDriver
 from transit.controller.drivers.compute.dtos import InputComputeDriverBuild
-from transit.database.repositories.transit_gateway import TransitGatewayRepository
+from transit.database.repositories.transit_gateway.transit_gateway import (
+    TransitGatewayRepository,
+)
+
+from transit.database.repositories.transit_gateway.models.transit_gateway_update import (
+    TransitGatewayUpdateInput,
+)
 
 from transit.common.constants import transit_gateway as transit_constants
 
@@ -40,7 +46,11 @@ class TransitGatewayIDToErrorOnRevertTask(task.Task):
         """When error this task will be reverted to"""
         try:
             self.transit_gateway_repo.update(
-                transit_gateway_id, provisioning_status=transit_constants.ERROR
+                TransitGatewayUpdateInput(
+                    id=transit_gateway_id,
+                    operating_status=transit_constants.ERROR,
+                    provisioning_status=transit_constants.ERROR,
+                )
             )
         except Exception as e:
             # TODO: update this to log error
@@ -55,7 +65,9 @@ class TransitGatewayMarkBootingInDB(task.Task):
     def execute(self, transit_gateway_id, *args, **kwargs):
         try:
             self.transit_gateway_repo.update(
-                transit_gateway_id, provisioning_status=transit_constants.BOOTING
+                TransitGatewayUpdateInput(
+                    id=transit_gateway_id, provisioning_status=transit_constants.BOOTING
+                ),
             )
         except Exception as e:
             print(e)
@@ -72,10 +84,12 @@ class TransitGatewayMarkReadyInDB(task.Task):
     def execute(self, transit_gateway_id, vytransit_id, *args, **kwargs):
         try:
             self.transit_gateway_repo.update(
-                transit_gateway_id,
-                vytransit_id=vytransit_id,
-                provisioning_status=transit_constants.ALLOCATED,
-                operating_status=transit_constants.OPERATIONAL,
+                TransitGatewayUpdateInput(
+                    id=transit_gateway_id,
+                    vytransit_id=vytransit_id,
+                    provisioning_status=transit_constants.ALLOCATED,
+                    operating_status=transit_constants.OPERATIONAL,
+                ),
             )
         except Exception as e:
             print(e)

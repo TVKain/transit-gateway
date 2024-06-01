@@ -1,15 +1,19 @@
 from typing import Optional
 
 from datetime import datetime
+
+
 from pydantic import BaseModel
+
 from pydantic import ConfigDict
 
 
-class TransitGatewayGetInput(BaseModel):
-    id: str
+class TransitGatewayCreateInput(BaseModel):
+    user_id: str
+    name: str
 
 
-class TransitGatewayGetOutput(BaseModel):
+class TransitGatewayCreateOutput(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     id: str
@@ -17,7 +21,7 @@ class TransitGatewayGetOutput(BaseModel):
     name: str
     user_id: str
 
-    vytransit_id: Optional[str]  # TODO remove this
+    vytransit_id: Optional[str]  # TODO: Remove optional
 
     operating_status: Optional[str]
     provisioning_status: Optional[str]
