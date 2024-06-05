@@ -1,19 +1,23 @@
 import openstack.exceptions
-from pydantic import validate_call
 
-from transit.controller.drivers.compute.compute_driver import ComputeDriver
-from transit.controller.drivers.compute.exceptions import (
+
+from transit.drivers.compute.compute_driver import ComputeDriver
+from transit.drivers.compute.exceptions import (
     ComputeBuildException,
     ComputeDeleteException,
     ComputeStatusException,
 )
-
-from transit.controller.drivers.compute.dtos import (
-    InputComputeDriverBuild,
-    InputComputeDriverDelete,
-    InputComputeDriverStatus,
+from transit.drivers.compute.models.compute_driver_build import (
+    ComputeDriverBuildInput,
 )
 
+from transit.drivers.compute.models.compute_driver_delete import (
+    ComputeDriverDeleteInput,
+)
+
+from transit.drivers.compute.models.compute_driver_status import (
+    ComputeDriverStatusInput,
+)
 
 from transit.common.client import OpenStackAuth
 
@@ -26,8 +30,7 @@ class NovaDriver(ComputeDriver):
 
         self._os_connection = OpenStackAuth.get_connection()
 
-    @validate_call
-    def build(self, params: InputComputeDriverBuild) -> str:
+    def build(self, params: ComputeDriverBuildInput) -> str:
         try:
             server = self._os_connection.compute.create_server(
                 name=params.name,
@@ -42,8 +45,7 @@ class NovaDriver(ComputeDriver):
 
         return server.id
 
-    @validate_call
-    def delete(self, params: InputComputeDriverDelete):
+    def delete(self, params: ComputeDriverDeleteInput):
         try:
             self._os_connection.compute.delete_server(
                 params.compute_id, ignore_missing=False
@@ -55,8 +57,7 @@ class NovaDriver(ComputeDriver):
         except Exception as e:
             raise ComputeDeleteException("Delete vm fail") from e
 
-    @validate_call
-    def status(self, params: InputComputeDriverStatus):
+    def status(self, params: ComputeDriverStatusInput):
         try:
             server = self._os_connection.compute.get_server(params.compute_id)
         except openstack.exceptions.ResourceNotFound as e:

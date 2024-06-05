@@ -1,15 +1,21 @@
 import abc
 
-from transit.controller.drivers.compute.dtos import (
-    InputComputeDriverBuild,
-    InputComputeDriverDelete,
-    InputComputeDriverStatus,
+from transit.drivers.compute.models.compute_driver_build import (
+    ComputeDriverBuildInput,
+)
+
+from transit.drivers.compute.models.compute_driver_delete import (
+    ComputeDriverDeleteInput,
+)
+
+from transit.drivers.compute.models.compute_driver_status import (
+    ComputeDriverStatusInput,
 )
 
 
 class ComputeDriver(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def build(self, params: InputComputeDriverBuild) -> str:
+    def build(self, params: ComputeDriverBuildInput) -> str:
         """Build a new vytransit.
 
         :param name: Optional name for vytransit
@@ -22,14 +28,14 @@ class ComputeDriver(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def delete(self, params: InputComputeDriverDelete):
+    def delete(self, params: ComputeDriverDeleteInput):
         """Delete a vytransit virtual machine.
 
         :param compute_id: virtual machine UUID
         """
 
     @abc.abstractmethod
-    def status(self, params: InputComputeDriverStatus):
+    def status(self, params: ComputeDriverStatusInput):
         """Retrieve the status of a vytransit virtual machine.
 
         :param compute_id: virtual machine UUID

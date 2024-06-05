@@ -2,6 +2,9 @@ import oslo_messaging as messaging
 
 from fastapi import APIRouter
 
+from transit.api.routers.transit_gateway.models.transit_gateway_attach_vpc import (
+    TransitGatewayAttachVPCRequest,
+)
 from transit.api.routers.transit_gateway.models.transit_gateway_get import (
     TransitGatewayGetResponse,
 )
@@ -88,3 +91,8 @@ def update(uuid: str, update_request: TransitGatewayUpdateRequest):
     )
 
     return TransitGatewayUpdatetResponse.model_validate(update_output)
+
+
+@router.patch("/{uuid}")
+def attach_vpc(uuid: str, attach_network_request: TransitGatewayAttachVPCRequest):
+    pass

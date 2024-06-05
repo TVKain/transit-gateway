@@ -19,7 +19,7 @@ class TransitGatewayUpdatetResponse(BaseModel):
     name: str
     user_id: str
 
-    vytransit_id: Optional[str]  # TODO remove this
+    vytransit_id: Optional[str]
 
     operating_status: Optional[str]
     provisioning_status: Optional[str]

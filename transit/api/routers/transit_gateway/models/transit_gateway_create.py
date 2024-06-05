@@ -21,7 +21,7 @@ class TransitGatewayCreateResponse(BaseModel):
     name: str
     user_id: str
 
-    vytransit_id: Optional[str]  # TODO Remove optional
+    vytransit_id: Optional[str]
 
     operating_status: Optional[str]
     provisioning_status: Optional[str]

@@ -4,7 +4,9 @@ from taskflow import task
 from oslo_config import cfg
 
 from transit.controller.drivers.compute.drivers.nova_driver import NovaDriver
-from transit.controller.drivers.compute.dtos import InputComputeDriverBuild
+from transit.controller.drivers.compute.models.compute_driver_build import (
+    ComputeDriverBuildInput,
+)
 from transit.database.repositories.transit_gateway.transit_gateway import (
     TransitGatewayRepository,
 )
@@ -24,7 +26,7 @@ class ComputeBuildTask(task.Task):
 
     def execute(self, transit_gateway_id, *args, **kwargs):
         """Create vytransit vm"""
-        input_compute_build = InputComputeDriverBuild(
+        input_compute_build = ComputeDriverBuildInput(
             name=f"vytransit-{transit_gateway_id}",
             vytransit_flavor_id=cfg.CONF.vytransit.flavor_id,
             vytransit_image_id=cfg.CONF.vytransit.image_id,
