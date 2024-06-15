@@ -1,1 +1,1 @@
-# Transit - Transit Gateway as a Service for OpenStack 
+# Transit - Transit Gateway as a Service for OpenStack
