@@ -1,2 +1,4 @@
-flask
 python-dotenv
+fastapi
+pyvyos
+SQLModel
