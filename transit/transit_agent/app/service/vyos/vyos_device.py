@@ -2,9 +2,11 @@ import os
 
 from dotenv import load_dotenv
 
+import urllib3
 
 import pyvyos
 
+urllib3.disable_warnings()
 
 load_dotenv()
 

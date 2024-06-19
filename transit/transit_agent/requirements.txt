@@ -2,3 +2,4 @@ python-dotenv
 fastapi
 pyvyos
 SQLModel
+urllib3
