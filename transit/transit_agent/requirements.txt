@@ -3,3 +3,4 @@ fastapi
 pyvyos
 SQLModel
 urllib3
+requests
