@@ -74,6 +74,9 @@ def _parse_routings_table(table: str):
             if prev_ip == "0.0.0.0/0":
                 continue
 
+            if prev_ip == "169.254.169.254/32":
+                continue
+
             route = {
                 "destination": tokens[1],
                 "next_hop": tokens[4],
