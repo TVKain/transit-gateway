@@ -11,4 +11,4 @@ EXPOSE 8000
 
 WORKDIR /
 
-CMD ["fastapi", "run"]
+CMD ["fastapi", "dev"]
