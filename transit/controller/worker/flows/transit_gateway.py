@@ -18,10 +18,6 @@ class TransitGatewayFlow:
         )
 
         transit_gateway_create_flow.add(
-            transit_gateway.TransitGatewayMarkBootingInDB(requires="transit_gateway_id")
-        )
-
-        transit_gateway_create_flow.add(
             transit_gateway.ComputeBuildTask(
                 requires="transit_gateway_id", provides="vytransit_id"
             )

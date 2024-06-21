@@ -26,6 +26,17 @@ from transit.drivers.network.models.network_driver_detach_router_from_subnet imp
 
 
 class NetworkDriver(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def delete_network(self, network_id: str):
+        """
+        Delete vpc network
+        """
+
+    @abc.abstractmethod
+    def create_network(self, name: str):
+        """
+        Create vpc network for transit gateway
+        """
 
     @abc.abstractmethod
     def attach_router_to_subnet(

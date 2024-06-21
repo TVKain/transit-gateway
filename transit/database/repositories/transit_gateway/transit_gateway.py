@@ -1,20 +1,7 @@
 from transit.database.adapter import DBAdapter
-
 from transit.database.models.transit_gateway import TransitGatewayModel
-
-from transit.database.repositories.transit_gateway.models.transit_gateway_get import (
-    TransitGatewayGetInput,
-    TransitGatewayGetOutput,
-)
-
-from transit.database.repositories.transit_gateway.models.transit_gateway_create import (
-    TransitGatewayCreateInput,
-    TransitGatewayCreateOutput,
-)
-
-from transit.database.repositories.transit_gateway.models.transit_gateway_update import (
+from transit.database.repositories.transit_gateway.models.input import (
     TransitGatewayUpdateInput,
-    TransitGatewayUpdatetOutput,
 )
 
 
@@ -22,84 +9,79 @@ class TransitGatewayRepository:
     def __init__(self):
         self._db_adapter = DBAdapter()
 
-    def get_all(self) -> list[TransitGatewayGetOutput]:
+    def get_all(self):
         try:
             with self._db_adapter.get_session() as session:
-                transit_gateways_db = session.query(TransitGatewayModel).all()
-
-                get_output = [
-                    TransitGatewayGetOutput.model_validate(x)
-                    for x in transit_gateways_db
+                transit_gateways = session.query(TransitGatewayModel).all()
+                return [
+                    TransitGatewayModel.model_validate(transit_gateway)
+                    for transit_gateway in transit_gateways
                 ]
-
         except Exception as e:
-            print(e)
+            raise e
 
-        return get_output
-
-    def get(self, get_input: TransitGatewayGetInput) -> TransitGatewayGetOutput:
-
+    def get(self, ident: str):
         try:
             with self._db_adapter.get_session() as session:
-                transit_gateway_db = session.get_one(
-                    TransitGatewayModel, ident=get_input.id
+                transit_gateway = (
+                    session.query(TransitGatewayModel).filter_by(id=ident).first()
                 )
 
-                get_output = TransitGatewayGetOutput.model_validate(transit_gateway_db)
-
+                if not transit_gateway:
+                    return None
+                return TransitGatewayModel.model_validate(transit_gateway)
         except Exception as e:
-            print(e)
+            raise e
 
-        return get_output
-
-    def create(
-        self, create_input: TransitGatewayCreateInput
-    ) -> TransitGatewayCreateOutput:
-
+    def create(self, name: str):
         try:
             with self._db_adapter.get_session() as session:
+                transit_gateway_model = TransitGatewayModel(name=name, status="BUILD")
 
-                transit_gateway_db = TransitGatewayModel(
-                    user_id=create_input.user_id, name=create_input.name
-                )
-
-                session.add(transit_gateway_db)
+                session.add(transit_gateway_model)
                 session.commit()
 
-                transit_gateway_output = TransitGatewayCreateOutput.model_validate(
-                    transit_gateway_db
-                )
-
+                return TransitGatewayModel.model_validate(transit_gateway_model)
         except Exception as e:
-            print(e)
-        return transit_gateway_output
+            raise e
 
-    def update(
-        self, update_input: TransitGatewayUpdateInput
-    ) -> TransitGatewayUpdatetOutput:
+    def update(self, update_input: TransitGatewayUpdateInput):
+        """Update transit gateway"""
+
         try:
             with self._db_adapter.get_session() as session:
-                transit_gateway_db = session.get_one(
-                    TransitGatewayModel, ident=update_input.id
+                transit_gateway = (
+                    session.query(TransitGatewayModel)
+                    .filter_by(id=update_input.id)
+                    .first()
                 )
 
-                transit_gateway_db.name = update_input.name or transit_gateway_db.name
-                transit_gateway_db.vytransit_id = (
-                    update_input.vytransit_id or transit_gateway_db.vytransit_id
-                )
-                transit_gateway_db.operating_status = (
-                    update_input.operating_status or transit_gateway_db.operating_status
-                )
-                transit_gateway_db.provisioning_status = (
-                    update_input.provisioning_status
-                    or transit_gateway_db.provisioning_status
-                )
+                if update_input.name:
+                    transit_gateway.name = update_input.name
+
+                if update_input.compute_id:
+                    transit_gateway.compute_id = update_input.compute_id
+
+                if update_input.status:
+                    transit_gateway.status = update_input.status
+
+                if update_input.management_ip:
+                    transit_gateway.management_ip = update_input.management_ip
+
+                if update_input.vpc_net_ip:
+                    transit_gateway.vpc_net_ip = update_input.vpc_net_ip
+
+                if update_input.vpc_net_id:
+                    transit_gateway.vpc_net_id = update_input.vpc_net_id
+
+                if update_input.peering_net_ip:
+                    transit_gateway.peering_net_ip = update_input.peering_net_ip
 
                 session.commit()
 
-                update_output = TransitGatewayUpdatetOutput.model_validate(
-                    transit_gateway_db
-                )
+                return TransitGatewayModel.model_validate(transit_gateway)
         except Exception as e:
-            print(e)
-        return update_output
+            raise e
+
+    def delete(self, ident: str):
+        pass

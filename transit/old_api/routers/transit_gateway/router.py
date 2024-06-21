@@ -2,35 +2,35 @@ import oslo_messaging as messaging
 
 from fastapi import APIRouter
 
-from transit.api.routers.transit_gateway.models.transit_gateway_attach_vpc import (
+from transit.old_api.routers.transit_gateway.models.transit_gateway_attach_vpc import (
     TransitGatewayAttachVPCRequest,
 )
-from transit.api.routers.transit_gateway.models.transit_gateway_get import (
+from transit.old_api.routers.transit_gateway.models.transit_gateway_get import (
     TransitGatewayGetResponse,
 )
 
-from transit.api.routers.transit_gateway.models.transit_gateway_create import (
+from transit.old_api.routers.transit_gateway.models.transit_gateway_create import (
     TransitGatewayCreateRequest,
     TransitGatewayCreateResponse,
 )
 
-from transit.api.routers.transit_gateway.models.transit_gateway_update import (
+from transit.old_api.routers.transit_gateway.models.transit_gateway_update import (
     TransitGatewayUpdateRequest,
     TransitGatewayUpdatetResponse,
 )
 
-from transit.database.repositories.transit_gateway.models.transit_gateway_get import (
+from transit.old_database.repositories.transit_gateway.models.transit_gateway_get import (
     TransitGatewayGetInput,
 )
 
-from transit.database.repositories.transit_gateway.models.transit_gateway_create import (
+from transit.old_database.repositories.transit_gateway.models.transit_gateway_create import (
     TransitGatewayCreateInput,
 )
 
-from transit.database.repositories.transit_gateway.models.transit_gateway_update import (
+from transit.old_database.repositories.transit_gateway.models.transit_gateway_update import (
     TransitGatewayUpdateInput,
 )
-from transit.database.repositories.transit_gateway.transit_gateway import (
+from transit.old_database.repositories.transit_gateway.transit_gateway import (
     TransitGatewayRepository,
 )
 

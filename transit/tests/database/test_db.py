@@ -3,7 +3,7 @@ import pytest
 
 from transit.tests.fixtures import setup_prepare
 
-from transit.database.repositories.transit_gateway.transit_gateway import (
+from transit.old_database.repositories.transit_gateway.transit_gateway import (
     TransitGatewayRepository,
 )
 

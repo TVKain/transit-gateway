@@ -1,4 +1,4 @@
-from transit.api import main as api_main
+from transit.old_api import main as api_main
 
 
 def main():

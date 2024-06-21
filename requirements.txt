@@ -5,11 +5,12 @@ oslo.db
 oslo.messaging
 oslo.config
 oslo.concurrency
-Flask-SQLAlchemy
 pymysql
 pydantic
-Flask-Pydantic
 taskflow
 cotyledon
 fastapi 
 sqlmodel 
+python-dotenv
+celery
+flower

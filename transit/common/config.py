@@ -32,9 +32,12 @@ transit_opts = [
 vytransit_opts = [
     cfg.StrOpt(name="flavor_id", help="VyTransit instance flavor id"),
     cfg.StrOpt(name="image_id", help="VyTransit instance image id"),
-    cfg.ListOpt(
-        name="network_ids", help="List of network ids for the new VyTransit instance"
+    cfg.StrOpt(
+        name="management_net_id", help="Management network id for VyTransit instance, this should already exist"
     ),
+    cfg.StrOpt(
+        name="provider_net_id", help="Provider network id for VyTransit instance, this should already exist"
+    )
 ]
 
 # Configuration for controller worker

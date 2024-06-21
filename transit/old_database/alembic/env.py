@@ -9,10 +9,10 @@ from sqlalchemy import pool
 from alembic import context
 
 from sqlmodel import SQLModel
-from transit.database.models.transit_gateway import TransitGatewayModel
-from transit.database.models.subnet import SubnetModel
-from transit.database.models.transit_gateway_peering import TransitGatewayPeeringModel
-from transit.database.models.vpc import VPCModel
+from transit.old_database.models.transit_gateway import TransitGatewayModel
+from transit.old_database.models.subnet import SubnetModel
+from transit.old_database.models.transit_gateway_peering import TransitGatewayPeeringModel
+from transit.old_database.models.vpc import VPCModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

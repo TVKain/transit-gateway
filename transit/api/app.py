@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 
-
 from transit.api.routers.main import api_router
-
 
 app = FastAPI()
 

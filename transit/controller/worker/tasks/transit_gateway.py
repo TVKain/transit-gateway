@@ -7,11 +7,11 @@ from transit.controller.drivers.compute.drivers.nova_driver import NovaDriver
 from transit.controller.drivers.compute.models.compute_driver_build import (
     ComputeDriverBuildInput,
 )
-from transit.database.repositories.transit_gateway.transit_gateway import (
+from transit.old_database.repositories.transit_gateway.transit_gateway import (
     TransitGatewayRepository,
 )
 
-from transit.database.repositories.transit_gateway.models.transit_gateway_update import (
+from transit.old_database.repositories.transit_gateway.models.transit_gateway_update import (
     TransitGatewayUpdateInput,
 )
 

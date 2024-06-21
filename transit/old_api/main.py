@@ -16,5 +16,7 @@ def main():
         reload=cfg.CONF.api_settings.reload,
         host=cfg.CONF.api_settings.bind_host,
         port=cfg.CONF.api_settings.bind_port,
-        log_level=3,
     )
+
+if __name__ == "__main__":
+    main()

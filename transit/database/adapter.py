@@ -1,11 +1,15 @@
+import os
+
 from contextlib import contextmanager
+
+from dotenv import load_dotenv
 
 from sqlmodel import create_engine
 
-from oslo_config import cfg
-
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+
+
+load_dotenv()
 
 
 class DBAdapter:
@@ -15,7 +19,7 @@ class DBAdapter:
     def __init__(self):
 
         if self._engine is None:
-            self._engine = create_engine(cfg.CONF.database.connection)
+            self._engine = create_engine(os.getenv("DB_CONNECTION"))
             self._session = sessionmaker(bind=self._engine)
 
     @contextmanager

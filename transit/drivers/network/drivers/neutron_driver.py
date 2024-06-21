@@ -1,3 +1,11 @@
+import os
+
+
+import logging
+
+from dotenv import load_dotenv
+
+
 from transit.common.client import OpenStackAuth
 
 from transit.drivers.network.models.network_driver_get_subnets import (
@@ -36,12 +44,36 @@ from transit.drivers.network.exceptions import (
     RemoveRouteFromRouterException,
 )
 
+load_dotenv()
+
 
 class NeutronDriver(NetworkDriver):
     def __init__(self):
         super().__init__()
 
         self._os_connection = OpenStackAuth.get_connection()
+
+    def delete_network(self, network_id: str):
+        try:
+            self._os_connection.delete_network(network_id)
+
+            logging.info(f"Network with id={network_id} deleted")
+        except Exception as e:
+            logging.error(f"{e}")
+            raise NetworkNotFoundException from e
+
+    def create_network(self, name: str):
+        network_cidr = os.getenv("VPC_NETWORK_CIDR")
+
+        transit_vpc_net = self._os_connection.create_network(name=name)
+        self._os_connection.create_subnet(
+            transit_vpc_net.id,
+            cidr=network_cidr,
+            enable_dhcp=True,
+            dns_nameservers=["8.8.8.8"],
+        )
+
+        return transit_vpc_net.id
 
     def attach_router_to_subnet(
         self, params: NetworkDriverAttachRouterToSubnetInput

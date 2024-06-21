@@ -32,6 +32,7 @@ class NovaDriver(ComputeDriver):
 
     def build(self, params: ComputeDriverBuildInput) -> str:
         try:
+
             server = self._os_connection.compute.create_server(
                 name=params.name,
                 image_id=params.vytransit_image_id,
@@ -43,13 +44,16 @@ class NovaDriver(ComputeDriver):
 
         server = self._os_connection.compute.wait_for_server(server)
 
-        return server.id
+        return server
 
     def delete(self, params: ComputeDriverDeleteInput):
         try:
-            self._os_connection.compute.delete_server(
-                params.compute_id, ignore_missing=False
-            )
+            result = self._os_connection.delete_server(params.compute_id, wait=True)
+
+            if not result:
+                raise openstack.exceptions.ResourceNotFound(
+                    message=f"Delete vm fail: No vm with id=f{params.compute_id}"
+                )
         except openstack.exceptions.ResourceNotFound as e:
             raise ComputeDeleteException(
                 f"Delete vm fail: No vm with id=f{params.compute_id}"
