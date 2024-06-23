@@ -7,7 +7,7 @@ router = APIRouter(prefix="/tunnels", tags=["tunnels"])
 
 
 class AddTunnelRequest(SQLModel):
-    tunnel_id: str  # Map to tunnel_name will be tgw peering id
+    tunnel_id: str  # Map to  will be tgw peering id
     secret_key: str  # Sent from TGW
 
     tunnel_interface_ip: str  # IP address of tunnel interface
@@ -140,7 +140,7 @@ def add_tunnel(request: AddTunnelRequest):
             "ipsec",
             "site-to-site",
             "peer",
-            request.tunnel_name,
+            request.tunnel_id,
             "local-address",
             request.local_address,
         ]
@@ -153,7 +153,7 @@ def add_tunnel(request: AddTunnelRequest):
             "ipsec",
             "site-to-site",
             "peer",
-            request.tunnel_name,
+            request.tunnel_id,
             "remote-address",
             request.remote_address,
         ]
