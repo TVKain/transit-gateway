@@ -33,3 +33,22 @@ def create_transit_gateway_vpc_attachment_task(
     }
 
     run_flow(flow=flow, store=store)
+
+
+@app.task
+def delete_transit_gateway_vpc_attachment_task(
+    tgw_vpc_att_id: str,
+    vpc_router_id: str,
+    tgw_vpc_net_id: str,
+):
+    flow = (
+        TransitGatewayVPCAttachmentFlow.get_transit_gateway_vpc_attachment_delete_flow()
+    )
+
+    store = {
+        "tgw_vpc_att_id": tgw_vpc_att_id,
+        "vpc_router_id": vpc_router_id,
+        "tgw_vpc_net_id": tgw_vpc_net_id,
+    }
+
+    run_flow(flow=flow, store=store)

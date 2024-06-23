@@ -84,4 +84,9 @@ class TransitGatewayRepository:
             raise e
 
     def delete(self, ident: str):
-        pass
+        try:
+            with self._db_adapter.get_session() as session:
+                session.query(TransitGatewayModel).filter_by(id=ident).delete()
+                session.commit()
+        except Exception as e:
+            raise e

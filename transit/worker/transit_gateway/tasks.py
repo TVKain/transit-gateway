@@ -13,3 +13,18 @@ def create_transit_gateway_task(transit_gateway_id: str):
     }
 
     run_flow(flow=flow, store=store)
+
+
+@app.task
+def delete_transit_gateway_task(
+    transit_gateway_id: str, compute_id: str, vpc_net_id: str
+):
+    flow = TransitGatewayFlow.get_transit_gateway_delete_flow()
+
+    store = {
+        "transit_gateway_id": transit_gateway_id,
+        "compute_id": compute_id,
+        "vpc_net_id": vpc_net_id,
+    }
+
+    run_flow(flow=flow, store=store)

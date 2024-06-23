@@ -101,5 +101,9 @@ class VPCTransitGatewayRouteCreateTask(task.Task):
             logger.error(f"Error adding route to router: {e}")
             raise e
 
-        self.vpc_tgw_route_repo.delete(vpc_tgw_route_id)
+        self.vpc_tgw_route_repo.update_status(
+            ident=vpc_tgw_route_id,
+            status="ACTIVE",
+        )
+
         return vpc_tgw_route_id

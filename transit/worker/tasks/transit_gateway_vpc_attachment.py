@@ -74,7 +74,7 @@ class TransitGatewayVPCAttachmentAttachRouterToTGWNet(task.Task):
         self.network_driver = NeutronDriver()
         self.tgw_vpc_att_repo = TransitGatewayVPCAttachmentRepository()
 
-    def execute(self, vpc_router_id, tgw_vpc_net_id, *args, **kwargs):
+    def execute(self, tgw_vpc_att_id, vpc_router_id, tgw_vpc_net_id, *args, **kwargs):
         logger.info(
             f"Attaching router {vpc_router_id} to subnet of TGW network {tgw_vpc_net_id}"
         )
@@ -91,6 +91,14 @@ class TransitGatewayVPCAttachmentAttachRouterToTGWNet(task.Task):
         )
 
         logger.info(f"Router {vpc_router_id} attached to subnet {subnet_id}")
+
+        self.tgw_vpc_att_repo.update(
+            TransitGatewayVPCAttachmentUpdateInput(
+                id=tgw_vpc_att_id,
+                vpc_net_ip=result.ip_address,
+                status="READY",
+            )
+        )
 
         return dict(
             vpc_router_id=vpc_router_id,
@@ -111,6 +119,50 @@ class TransitGatewayVPCAttachmentAttachRouterToTGWNet(task.Task):
                 router_id=result["vpc_router_id"], subnet_id=result["subnet_id"]
             )
         )
+
+
+class TransitGatewayVPCAttachmentDetachRouterFromTGWNet(task.Task):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.network_driver = NeutronDriver()
+        self.tgw_vpc_att_repo = TransitGatewayVPCAttachmentRepository()
+
+    def execute(self, vpc_router_id, tgw_vpc_net_id, *args, **kwargs):
+        logger.info(
+            f"Detaching router {vpc_router_id} from subnet of TGW network {tgw_vpc_net_id}"
+        )
+
+        subnet_id = self.network_driver.get_subnets(
+            NetworkDriverGetSubnetsInput(network_id=tgw_vpc_net_id)
+        )["subnets"][0]["id"]
+
+        self.network_driver.detach_router_from_subnet(
+            NetworkDriverDetachRouterFromSubnetInput(
+                router_id=vpc_router_id,
+                subnet_id=subnet_id,
+            )
+        )
+
+        logger.info(f"Router {vpc_router_id} detached from subnet {subnet_id}")
+
+    def revert(self, result, *args, **kwargs):
+        if isinstance(result, failure.Failure):
+            return
+
+
+class TransitGatewayVPCAttachmentDeleteAttachmentFromDB(task.Task):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tgw_vpc_att_repo = TransitGatewayVPCAttachmentRepository()
+
+    def execute(self, tgw_vpc_att_id, *args, **kwargs):
+        logger.info(f"Deleting TGW VPC Attachment {tgw_vpc_att_id}")
+
+        self.tgw_vpc_att_repo.delete(tgw_vpc_att_id)
+
+    def revert(self, result, *args, **kwargs):
+        if isinstance(result, failure.Failure):
+            return
 
 
 class TransitGatewayVPCAttachmentAddRouteIfPossible(task.Task):
@@ -145,14 +197,6 @@ class TransitGatewayVPCAttachmentAddRouteIfPossible(task.Task):
 
         if not overlap:
             vytransit_driver.add_vpc_route(vpc_cidr, vpc_router_info["vpc_router_ip"])
-
-        self.tgw_vpc_att_repo.update(
-            TransitGatewayVPCAttachmentUpdateInput(
-                id=tgw_vpc_att_id,
-                vpc_net_ip=vpc_router_info["vpc_router_ip"],
-                status="READY",
-            )
-        )
 
         logger.info(
             f"Updated TGW VPC Attachment {tgw_vpc_att_id} with IP {vpc_router_info['vpc_router_ip']}"

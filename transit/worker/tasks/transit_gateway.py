@@ -9,6 +9,7 @@ from taskflow.types import failure
 
 from dotenv import load_dotenv
 
+from transit.common.client import OpenStackAuth
 from transit.database.repositories.transit_gateway.models.input import (
     TransitGatewayUpdateInput,
 )
@@ -82,6 +83,8 @@ class TransitGatewayComputeBuildTask(task.Task):
         self.compute_driver = NovaDriver()
         self.transit_gateway_repo = TransitGatewayRepository()
 
+        self.compute_id = None
+
     def execute(self, transit_gateway_id, vpc_network_id, *args, **kwargs):
         """Create vytransit vm"""
 
@@ -99,6 +102,8 @@ class TransitGatewayComputeBuildTask(task.Task):
         )
 
         compute = self.compute_driver.build(input_compute_build)
+
+        self.compute_id = compute.id
 
         logger.info(f"Compute created {compute}")
 
@@ -136,7 +141,11 @@ class TransitGatewayComputeBuildTask(task.Task):
         return compute.id
 
     def revert(self, result, *args, **kwargs):
-        pass
+
+        if self.compute_id:
+            self.compute_driver.delete(
+                ComputeDriverDeleteInput(compute_id=self.compute_id)
+            )
 
 
 class TransitGatewayMarkActiveInDB(task.Task):
@@ -153,6 +162,59 @@ class TransitGatewayMarkActiveInDB(task.Task):
                 status="ACTIVE",
             ),
         )
+
+    def revert(self, *args, **kwargs):
+        pass
+
+
+class TransitGatewayDeleteNetworkTask(task.Task):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.network_driver = NeutronDriver()
+
+    def execute(self, vpc_net_id, *args, **kwargs):
+
+        try:
+            self.network_driver.delete_network(vpc_net_id)
+        except Exception as e:
+            logging.info(
+                f"Error deleting network {vpc_net_id}: {e} - network is possibly already deleted"
+            )
+
+    def revert(self, *args, **kwargs):
+        pass
+
+
+class TransitGatewayDeleteComputeTask(task.Task):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.compute_driver = NovaDriver()
+
+    def execute(self, compute_id, *args, **kwargs):
+
+        try:
+            self.compute_driver.delete(ComputeDriverDeleteInput(compute_id=compute_id))
+        except Exception as e:
+            logging.info(
+                f"Error deleting compute {compute_id}: {e} - compute is possibly already deleted"
+            )
+
+    def revert(self, *args, **kwargs):
+        pass
+
+
+class TransitGatewayDeleteTransitInDBTask(task.Task):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.transit_gateway_repo = TransitGatewayRepository()
+
+    def execute(self, transit_gateway_id, *args, **kwargs):
+
+        try:
+            self.transit_gateway_repo.delete(transit_gateway_id)
+        except Exception as e:
+            logging.info(f"Error deleting transit gateway in DB: {e}")
 
     def revert(self, *args, **kwargs):
         pass

@@ -1,3 +1,5 @@
+import logging
+
 import openstack.exceptions
 
 
@@ -43,6 +45,25 @@ class NovaDriver(ComputeDriver):
             raise ComputeBuildException(f"Build vm {params} failed") from e
 
         server = self._os_connection.compute.wait_for_server(server)
+
+        try:
+            compute_ports = self._os_connection.list_ports(
+                filters={"device_id": server.id}
+            )
+
+            logging.info("Disabling port security for ports")
+
+            for compute_port in compute_ports:
+                self._os_connection.update_port(
+                    name_or_id=compute_port.id, security_groups=[]
+                )
+                self._os_connection.update_port(
+                    name_or_id=compute_port.id, port_security_enabled=False
+                )
+
+            logging.info("Disabling port security for ports done")
+        except Exception as e:
+            logging.info(f"Error disabling port security for ports {e}")
 
         return server
 

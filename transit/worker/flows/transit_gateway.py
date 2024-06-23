@@ -37,3 +37,29 @@ class TransitGatewayFlow:
         )
 
         return transit_gateway_create_flow
+
+    @staticmethod
+    def get_transit_gateway_delete_flow():
+        transit_gateway_delete_flow = linear_flow.Flow("transit_delete_flow")
+
+        transit_gateway_delete_flow.add(
+            transit_gateway.TransitGatewayIDToErrorOnRevertTask(
+                requires="transit_gateway_id"
+            )
+        )
+
+        transit_gateway_delete_flow.add(
+            transit_gateway.TransitGatewayDeleteComputeTask(requires="compute_id")
+        )
+
+        transit_gateway_delete_flow.add(
+            transit_gateway.TransitGatewayDeleteNetworkTask(requires="vpc_net_id")
+        )
+
+        transit_gateway_delete_flow.add(
+            transit_gateway.TransitGatewayDeleteTransitInDBTask(
+                requires="transit_gateway_id"
+            )
+        )
+
+        return transit_gateway_delete_flow

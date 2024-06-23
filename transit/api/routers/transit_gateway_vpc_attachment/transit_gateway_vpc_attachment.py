@@ -22,8 +22,15 @@ from transit.database.repositories.transit_gateway_vpc_attachment.models.input i
     TransitGatewayVPCAttachmentUpdateInput,
 )
 
+from transit.database.repositories.transit_gateway_vpc_route.transit_gateway_vpc_route import (
+    TransitGatewayVPCRouteRepository,
+)
+from transit.database.repositories.vpc_transit_gateway_route.vpc_transit_gateway_route import (
+    VPCTransitGatewayRouteRepository,
+)
 from transit.worker.transit_gateway_vpc_attachment.tasks import (
     create_transit_gateway_vpc_attachment_task,
+    delete_transit_gateway_vpc_attachment_task,
 )
 
 load_dotenv()
@@ -103,3 +110,58 @@ def get_transit_gateway_vpc_attachments(transit_gateway_id: str | None = None):
     result = tgw_vpc_att_repo.get_all(transit_gateway_id)
 
     return result
+
+
+@router.delete("/{transit_gateway_vpc_attachment_id}")
+def delete_transit_gateway_vpc_attachment(transit_gateway_vpc_attachment_id: str):
+    tgw_vpc_att_repo = TransitGatewayVPCAttachmentRepository()
+
+    tgw_vpc_route_repo = TransitGatewayVPCRouteRepository()
+
+    vpc_tgw_route_repo = VPCTransitGatewayRouteRepository()
+
+    tgw_repo = TransitGatewayRepository()
+
+    try:
+        tgw_vpc_att = tgw_vpc_att_repo.get(transit_gateway_vpc_attachment_id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Transit Gateway VPC Attachment not found for id {transit_gateway_vpc_attachment_id}",
+        ) from e
+
+    tgw_vpc_routes = tgw_vpc_route_repo.get_all_by_tgw_att_id(
+        transit_gateway_vpc_attachment_id
+    )
+
+    if len(tgw_vpc_routes) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Transit Gateway has routes associate with this VPC Attachment",
+        )
+
+    vpc_tgw_routes = vpc_tgw_route_repo.get_all_by_tgw_vpc_attachment_id(
+        transit_gateway_vpc_attachment_id
+    )
+
+    if len(vpc_tgw_routes) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="VPC has routes associate with this VPC Attachment",
+        )
+
+    tgw = tgw_repo.get(tgw_vpc_att.transit_gateway_id)
+
+    tgw_vpc_att_repo.update(
+        TransitGatewayVPCAttachmentUpdateInput(
+            id=transit_gateway_vpc_attachment_id, status="DELETING"
+        ),
+    )
+
+    delete_transit_gateway_vpc_attachment_task.delay(
+        tgw_vpc_att_id=transit_gateway_vpc_attachment_id,
+        vpc_router_id=tgw_vpc_att.vpc_router_id,
+        tgw_vpc_net_id=tgw.vpc_net_id,
+    )
+
+    return {"message": "Transit Gateway VPC Attachment deleted"}

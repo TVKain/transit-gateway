@@ -54,6 +54,8 @@ def delete_vpc_transit_gateway_route(vpc_tgw_route_id: str):
 
     try:
         vpc_tgw_route_repo.get(ident=vpc_tgw_route_id)
+
+        vpc_tgw_route_repo.update_status(ident=vpc_tgw_route_id, status="DELETING")
     except Exception as e:
         logging.error(f"Error deleting vpc transit gateway route: {e}")
         raise HTTPException(

@@ -68,6 +68,25 @@ class VPCTransitGatewayRouteRepository:
         except Exception as e:
             raise e
 
+    def get_all_by_tgw_vpc_attachment_id(self, tgw_vpc_attachment_id: str):
+        try:
+            with self._db_adapter.get_session() as session:
+                if not tgw_vpc_attachment_id:
+                    raise Exception("Invalid tgw_vpc_attachment_id")
+
+                vpc_tgw_route = (
+                    session.query(VPCTransitGatewayRouteModel)
+                    .filter_by(target=tgw_vpc_attachment_id)
+                    .all()
+                )
+
+                return [
+                    VPCTransitGatewayRouteModel.model_validate(route)
+                    for route in vpc_tgw_route
+                ]
+        except Exception as e:
+            raise e
+
     def update_status(self, ident: str, status: str):
         try:
             with self._db_adapter.get_session() as session:

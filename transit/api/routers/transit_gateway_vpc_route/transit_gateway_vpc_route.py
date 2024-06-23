@@ -165,6 +165,8 @@ def delete_transit_gateway_vpc_routes(tgw_vpc_route_id: str):
             detail=f"Transit Gateway not found for VPC Attachment {tgw_vpc_att.id}",
         ) from e
 
+    TransitGatewayVPCRouteRepository().update(tgw_vpc_route_id, "DELETING")
+
     delete_transit_gateway_vpc_route_task.delay(
         tgw_vpc_route_id=tgw_vpc_route.id,
         vpc_net_ip=tgw_vpc_att.vpc_net_ip,
