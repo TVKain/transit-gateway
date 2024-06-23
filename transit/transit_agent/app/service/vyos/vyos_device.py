@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 
 import urllib3
 
-import pyvyos
-
+from app.library import pyvyos
 
 urllib3.disable_warnings()
 

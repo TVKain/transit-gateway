@@ -13,7 +13,7 @@ class Routing(SQLModel):
 
 @router.post("/")
 def add_routing(routing: Routing):
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
             "protocols",
             "static",
@@ -26,22 +26,24 @@ def add_routing(routing: Routing):
 
     vy_device.config_file_save()
 
-    return {"status": "success"}
+    return response
 
 
 @router.delete("/")
 def delete_routing(routing: Routing):
-    vy_device.configure_delete(
+    response = vy_device.configure_delete(
         path=[
-            "protocols",
-            "static",
-            "route",
-            routing.destination,
-            "next-hop",
-            routing.next_hop,
+            [
+                "protocols",
+                "static",
+                "route",
+                routing.destination,
+                "next-hop",
+                routing.next_hop,
+            ]
         ]
     )
 
     vy_device.config_file_save()
 
-    return {"status": "success"}
+    return response
