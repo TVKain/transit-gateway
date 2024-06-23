@@ -41,7 +41,7 @@ def delete_tunnel(tunnel_id: str, request: DeleteTunnelRequest):
 
 @router.post("/")
 def add_tunnel(request: AddTunnelRequest):
-
+    logging.info(f"Creating tunnel {request.tunnel_id}")
     response = vy_device.configure_set(
         path=[
             f"interfaces vti vti{request.vti_num} address {request.vti_ip}",
@@ -49,7 +49,7 @@ def add_tunnel(request: AddTunnelRequest):
     )
 
     if response.error:
-        return {"status": "error", "message": response.error}
+        return {"status": "error", "message": "VTI interface could not be created"}
 
     logging.info(
         f"VTI interface vti{request.vti_num} created with ip address {request.vti_ip}"
@@ -62,7 +62,10 @@ def add_tunnel(request: AddTunnelRequest):
     )
 
     if response.error:
-        return {"status": "error", "message": response.error}
+        return {
+            "status": "error",
+            "message": "Secret key for tunnel and id could not be set",
+        }
 
     response = vy_device.configure_set(
         path=[
