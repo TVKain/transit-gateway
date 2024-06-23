@@ -44,7 +44,7 @@ def add_tunnel(request: AddTunnelRequest):
     logging.info(f"Creating tunnel {request.tunnel_id}")
     response = vy_device.configure_set(
         path=[
-            f"interfaces vti vti{request.vti_num} address {request.vti_ip}",
+            f"interfaces vti vti{request.vti_num} address '{request.vti_ip}'",
         ]
     )
 
