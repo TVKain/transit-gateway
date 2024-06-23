@@ -1,5 +1,9 @@
+import logging
+
+
 from fastapi import APIRouter
 from sqlmodel import SQLModel
+
 
 from app.service.vyos.vyos_device import vy_device
 
@@ -38,164 +42,138 @@ def delete_tunnel(tunnel_id: str, request: DeleteTunnelRequest):
 @router.post("/")
 def add_tunnel(request: AddTunnelRequest):
 
-    # set vpn ipsec authentication psk [tunnel_id] id [tunnel_interface_ip]
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "authentication",
-            "psk",
-            request.tunnel_id,
-            "id",
-            request.tunnel_interface_ip,
+            f"interfaces vti vti{request.vti_num} address {request.vti_ip}",
         ]
     )
-    # set vpn ipsec authentication psk [tunnel_id] id [remote_tunnel_interface_ip]
-    vy_device.configure_set(
+
+    if response.error:
+        return {"status": "error", "message": response.error}
+
+    logging.info(
+        f"VTI interface vti{request.vti_num} created with ip address {request.vti_ip}"
+    )
+
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "authentication",
-            "psk",
-            request.tunnel_id,
-            "id",
-            request.remote_tunnel_interface_ip,
+            f"vpn ipsec authentication psk {request.tunnel_id} id {request.tunnel_interface_ip}",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
+
+    response = vy_device.configure_set(
+        path=[
+            f"vpn ipsec authentication psk {request.tunnel_id} id {request.remote_tunnel_interface_ip}",
+        ]
+    )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
+
+    response = vy_device.configure_set(
+        path=[
+            f"vpn ipsec authentication psk {request.tunnel_id} secret  {request.secret_key}",
+        ]
+    )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
+
+    logging.info(f"Secret key for tunnel and id {request.tunnel_id} set")
 
     # set vpn ipsec ike-group tunnel-ike-group
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "authentication",
-            "mode",
-            "pre-shared-secret",
+            f"vpn ipsec site-to-site peer {request.tunnel_id} ike-group tunnel-ike-group",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     # set vpn ipsec site-to-site peer [tunnel_id] authentication local-id [tunnel_interface_ip]
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "authentication",
-            "local-id",
-            request.tunnel_interface_ip,
+            f"vpn ipsec site-to-site peer {request.tunnel_id} authentication local-id {request.tunnel_interface_ip}",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     # set vpn ipsec site-to-site peer [tunnel_id] authentication remote-id [remote_tunnel_interface_ip]
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "authentication",
-            "remote-id",
-            request.remote_tunnel_interface_ip,
+            f"vpn ipsec site-to-site peer {request.tunnel_id} authentication remote-id {request.remote_tunnel_interface_ip}",
         ]
     )
 
+    if response.error:
+        return {"status": "error", "message": response.error}
+
     # set vpn ipsec site-to-site peer [tunnel_id] authentication mode 'pre-shared-secret'
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "authentication",
-            "mode",
-            "pre-shared-secret",
+            f"vpn ipsec site-to-site peer {request.tunnel_id} authentication mode pre-shared-secret",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     # Assumes that the tunnel-ike-group was already created
     # set vpn ipsec site-to-site peer [tunnel_id] ike-group tunnel-ike-group
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "ike-group",
-            "tunnel-ike-group",
+            f"vpn ipsec site-to-site peer {request.tunnel_id} ike-group tunnel-ike-group",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     # set vpn ipsec site-to-site peer [tunnel_id] local-address [tunnel_interface_ip]
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "local-address",
-            request.tunnel_interface_ip,
+            f"vpn ipsec site-to-site peer {request.tunnel_id} local-address {request.tunnel_interface_ip}",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     # set vpn ipsec site-to-site peer [tunnel_id] remote-address [remote_address]
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            request.tunnel_id,
-            "remote-address",
-            request.remote_tunnel_interface_ip,
+            f"vpn ipsec site-to-site peer {request.tunnel_id} remote-address {request.remote_tunnel_interface_ip}",
         ]
     )
 
-    # set interfaces vti vti[vti_num] address [vti_ip]
-    vy_device.configure_set(
-        path=[
-            "interfaces",
-            "vti",
-            f"vti{request.vti_num}",
-            "address",
-            request.vti_ip,
-        ]
-    )
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     # set vpn ipsec site-to-site peer [tunnel_id] vti bind vti[vti_num]
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            f"{request.tunnel_id}",
-            "vti",
-            "bind",
-            f"vti{request.vti_num}",
+            f"vpn ipsec site-to-site peer {request.tunnel_id} vti bind vti{request.vti_num}",
         ]
     )
 
+    if response.error:
+        return {"status": "error", "message": response.error}
+
     # Assume that the tunnel-esp-group was already created
-    vy_device.configure_set(
+    response = vy_device.configure_set(
         path=[
-            "vpn",
-            "ipsec",
-            "site-to-site",
-            "peer",
-            f"{request.tunnel_id}",
-            "esp-group",
-            "tunnel-esp-group",
+            f"vpn ipsec site-to-site peer {request.tunnel_id} vti esp-group tunnel-esp-group",
         ]
     )
+
+    if response.error:
+        return {"status": "error", "message": response.error}
 
     vy_device.config_file_save()
 
