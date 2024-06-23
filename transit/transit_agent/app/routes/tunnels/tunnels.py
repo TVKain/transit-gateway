@@ -142,7 +142,7 @@ def add_tunnel(request: AddTunnelRequest):
             "peer",
             request.tunnel_id,
             "local-address",
-            request.local_address,
+            request.tunnel_interface_ip,
         ]
     )
 
@@ -155,7 +155,7 @@ def add_tunnel(request: AddTunnelRequest):
             "peer",
             request.tunnel_id,
             "remote-address",
-            request.remote_address,
+            request.remote_tunnel_interface_ip,
         ]
     )
 
