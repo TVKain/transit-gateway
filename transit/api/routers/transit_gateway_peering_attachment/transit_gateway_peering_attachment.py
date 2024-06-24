@@ -41,8 +41,18 @@ router = APIRouter(
 AVAILABLE_CIDRS = [f"169.254.{i}.0/30" for i in range(1, 11)]
 
 
-@router.get("/available-cidr/{transit_gateway_id}")
+@router.get("/available_cidr/{transit_gateway_id}")
 def get_available_cidrs(transit_gateway_id: str):
+    tgw_repo = TransitGatewayRepository()
+
+    tgw = tgw_repo.get(transit_gateway_id)
+
+    if not tgw:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Transit Gateway with ID {transit_gateway_id} does not exist",
+        )
+
     tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
 
     tgw_peer_attachments = tgw_peer_attachment_repo.get_all(transit_gateway_id)
@@ -56,11 +66,13 @@ def get_available_cidrs(transit_gateway_id: str):
     return cidrs
 
 
-@router.get("/is-quota-max/{transit_gateway_id}")
+@router.get("/is_quota_max/{transit_gateway_id}")
 def get_is_quota_max(transit_gateway_id: str):
     tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
 
     tgw_peer_attachments = tgw_peer_attachment_repo.get_all(transit_gateway_id)
+
+    print(tgw_peer_attachments)
 
     if len(tgw_peer_attachments) >= int(os.getenv("MAX_PEERING_PER_TRANSIT_GATEWAY")):
         return True
