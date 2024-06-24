@@ -38,13 +38,6 @@ router = APIRouter(
 )
 
 
-@router.get("/test")
-def test():
-    vytransit = VyTransitDriver("100.0.3.67")
-
-    return vytransit.test()
-
-
 @router.post("/")
 def create(request: TransitGatewayPeeringAttachmentCreateRequest):
     tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
@@ -121,6 +114,7 @@ def create(request: TransitGatewayPeeringAttachmentCreateRequest):
             TransitGatewayPeeringAttachmentModel(
                 transit_gateway_id=request.transit_gateway_id,
                 remote_transit_gateway_id=request.remote_transit_gateway_id,
+                name=request.name,
                 status="PENDING",
                 tunnel_interface_ip=tgw.peering_net_ip,
                 remote_tunnel_interface_ip=request.remote_tunnel_interface_ip,

@@ -72,6 +72,7 @@ def create_transit_gateway_vpc_attachment(
         result = tgw_vpc_att_repo.create(
             TransitGatewayVPCAttachmentCreateInput(
                 transit_gateway_id=request.transit_gateway_id,
+                name=request.name,
                 vpc_id=request.vpc_id,
                 vpc_router_id=request.vpc_router_id,
                 vpc_cidr=request.vpc_cidr,
