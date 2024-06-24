@@ -21,6 +21,10 @@ from transit.api.routers.transit_gateway_peering_attachment.transit_gateway_peer
     router as transit_gateway_peering_attachment_router,
 )
 
+from transit.api.routers.transit_gateway_peering_route.transit_gateway_peering_route import (
+    router as transit_gateway_peering_route_router,
+)
+
 
 api_router = APIRouter()
 api_router.include_router(transit_gateway_router)
@@ -28,3 +32,4 @@ api_router.include_router(transit_gateway_vpc_attachment_router)
 api_router.include_router(transit_gateway_vpc_routes_router)
 api_router.include_router(vpc_transit_gateway_routes_router)
 api_router.include_router(transit_gateway_peering_attachment_router)
+api_router.include_router(transit_gateway_peering_route_router)

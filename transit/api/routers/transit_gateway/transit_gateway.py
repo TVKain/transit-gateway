@@ -12,6 +12,9 @@ from transit.api.routers.transit_gateway.models.request import (
     TransitGatewayCreateRequest,
 )
 
+from transit.database.repositories.transit_gateway_peering_attachment.transit_gateway_peering_attachment import (
+    TransitGatewayPeeringAttachmentRepository,
+)
 from transit.database.repositories.transit_gateway_vpc_attachment.transit_gateway_vpc_attachment import (
     TransitGatewayVPCAttachmentRepository,
 )
@@ -82,7 +85,15 @@ def delete_transit_gateway(transit_gateway_id: str):
             detail=f"Transit Gateway {transit_gateway_id} has VPC attachments",
         )
 
-    # TODO check if there are any peering attachments
+    tgw_peering_att_repo = TransitGatewayPeeringAttachmentRepository()
+
+    tgw_peering_atts = tgw_peering_att_repo.get_all(transit_gateway_id)
+
+    if len(tgw_peering_atts) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Transit Gateway {transit_gateway_id} has peering attachments",
+        )
 
     if tgw.status == "DELETING":
         raise HTTPException(

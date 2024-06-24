@@ -23,6 +23,9 @@ from transit.database.repositories.transit_gateway.transit_gateway import (
     TransitGatewayRepository,
 )
 
+from transit.database.repositories.transit_gateway_peering_route.transit_gateway_peering_route import (
+    TransitGatewayPeeringRouteRepository,
+)
 from transit.worker.transit_gateway_peering_attachment.tasks import (
     create_transit_gateway_peering_attachment_task,
     delete_transit_gateway_peering_attachment_task,
@@ -205,7 +208,15 @@ def delete(transit_gateway_peering_attachment_id: str):
             detail="Error occurred while fetching Transit Gateway Peering Attachment",
         ) from e
 
-    # TODO Disallow if there are route using this attachment
+    tgw_peer_route_repo = TransitGatewayPeeringRouteRepository()
+
+    tgw_peer_routes = tgw_peer_route_repo.get_all(tgw_peer_attachment.id)
+
+    if len(tgw_peer_routes) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Transit Gateway Peering Attachment has associated routes",
+        )
 
     tgw_repo = TransitGatewayRepository()
 

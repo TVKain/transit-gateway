@@ -22,33 +22,14 @@ from transit.worker.transit_gateway_vpc_route.tasks import (
     delete_transit_gateway_vpc_route_task,
 )
 
+from transit.api.routers.utils.check_tgw_route_overlap import check_tgw_route_overlap
+
 from transit.common import utils
 
 
 router = APIRouter(
     prefix="/transit_gateway_vpc_routes", tags=["transit_gateway_vpc_routes"]
 )
-
-
-def _check_tgw_vpc_route_overlap(tgw_id: str, destination_cidr: str):
-
-    tgw_vpc_route_repo = TransitGatewayVPCRouteRepository()
-
-    tgw_vpc_att_repo = TransitGatewayVPCAttachmentRepository()
-
-    tgw_vpc_atts = tgw_vpc_att_repo.get_all(tgw_id)
-
-    destination_cidr_ip = ipaddress.ip_network(destination_cidr)
-    for tgw_vpc_att in tgw_vpc_atts:
-        tgw_vpc_routes = tgw_vpc_route_repo.get_all_by_tgw_att_id(tgw_vpc_att.id)
-
-        for tgw_vpc_route in tgw_vpc_routes:
-            if ipaddress.ip_network(tgw_vpc_route.destination).overlaps(
-                destination_cidr_ip
-            ):
-                return True
-
-    return False
 
 
 @router.post("/")
@@ -93,7 +74,7 @@ def create_transit_gateway_vpc_routes(request: CreateTransitGatewayVPCRoutesRequ
             detail=f"{str(e)}",
         ) from e
 
-    if _check_tgw_vpc_route_overlap(tgw.id, request.destination_cidr):
+    if check_tgw_route_overlap(tgw.id, request.destination_cidr):
         raise HTTPException(
             status_code=400, detail=f"Overlapping route for transit gateway {tgw.id}"
         )
@@ -140,6 +121,20 @@ def get_transit_gateway_vpc_routes(transit_gateway_id: str | None = None):
 @router.delete("/{tgw_vpc_route_id}")
 def delete_transit_gateway_vpc_routes(tgw_vpc_route_id: str):
     tgw_vpc_route_repo = TransitGatewayVPCRouteRepository()
+
+    tgw_vpc_route = tgw_vpc_route_repo.get(tgw_vpc_route_id)
+
+    if tgw_vpc_route.status == "DELETING":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Transit Gateway VPC Route {tgw_vpc_route_id} is already being deleted",
+        )
+
+    if tgw_vpc_route.status == "PENDING":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Transit Gateway VPC Route {tgw_vpc_route_id} is not yet created",
+        )
 
     try:
         tgw_vpc_route = tgw_vpc_route_repo.get(tgw_vpc_route_id)
