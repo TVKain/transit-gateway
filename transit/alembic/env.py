@@ -26,6 +26,10 @@ from transit.database.models.transit_gateway_peering_attachment import (
     TransitGatewayPeeringAttachmentModel,
 )
 
+from transit.database.models.transit_gateway_peering_route import (
+    TransitGatewayPeeringRouteModel,
+)
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

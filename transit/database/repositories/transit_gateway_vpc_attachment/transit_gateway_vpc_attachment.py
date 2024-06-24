@@ -72,6 +72,7 @@ class TransitGatewayVPCAttachmentRepository:
         try:
             with self._db_adapter.get_session() as session:
                 transit_gateway_vpc_attachment_model = TransitGatewayVpcAttachmentModel(
+                    name=create_input.name,
                     transit_gateway_id=create_input.transit_gateway_id,
                     vpc_id=create_input.vpc_id,
                     vpc_router_id=create_input.vpc_router_id,
@@ -98,6 +99,9 @@ class TransitGatewayVPCAttachmentRepository:
                     .filter_by(id=update_input.id)
                     .first()
                 )
+
+                if update_input.name:
+                    attachment.name = update_input.name
 
                 if update_input.status:
                     attachment.status = update_input.status

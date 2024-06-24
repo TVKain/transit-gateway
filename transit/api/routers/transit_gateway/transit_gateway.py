@@ -32,7 +32,9 @@ def get_transit_gateways():
 
 @router.get("/{transit_gateway_id}")
 def get_transit_gateway(transit_gateway_id: str):
-    return {"transit_gateway_id": transit_gateway_id}
+    transit_repo = TransitGatewayRepository()
+
+    return transit_repo.get(ident=transit_gateway_id)
 
 
 @router.post("/")

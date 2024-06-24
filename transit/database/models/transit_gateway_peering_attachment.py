@@ -1,6 +1,10 @@
 import uuid
 
 from typing import Optional
+
+from datetime import datetime
+
+
 from sqlmodel import SQLModel, Field
 
 from pydantic import ConfigDict
@@ -14,6 +18,8 @@ class TransitGatewayPeeringAttachmentModel(SQLModel, table=True):
     id: Optional[str] = Field(
         default_factory=lambda: f"tgw-peer-att-{uuid.uuid4()}", primary_key=True
     )
+
+    name: Optional[str] = None
 
     # Transit gateway for this peering attachment to be attached to
     transit_gateway_id: Optional[str] = Field(foreign_key="transit_gateways.id")
@@ -39,3 +45,6 @@ class TransitGatewayPeeringAttachmentModel(SQLModel, table=True):
     tun_cidr: Optional[str] = (
         None  # Virtual Tunnel Interface CIDR must be 169.254.1.0/30 to 169.254.10.0/30, must be unique
     )
+
+    created_at: Optional[str] = Field(default_factory=datetime.now)
+    updated_at: Optional[str] = Field(default_factory=datetime.now)

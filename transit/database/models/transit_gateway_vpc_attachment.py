@@ -14,6 +14,8 @@ class TransitGatewayVpcAttachmentModel(SQLModel, table=True):
         default_factory=lambda: f"tgw-vpc-att-{uuid.uuid4()}", primary_key=True
     )
 
+    name: Optional[str] = None
+
     vpc_id: Optional[str] = None
     vpc_cidr: Optional[str] = None
     vpc_router_id: Optional[str] = None
