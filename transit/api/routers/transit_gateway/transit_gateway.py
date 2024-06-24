@@ -82,6 +82,8 @@ def delete_transit_gateway(transit_gateway_id: str):
             detail=f"Transit Gateway {transit_gateway_id} has VPC attachments",
         )
 
+    # TODO check if there are any peering attachments
+
     if tgw.status == "DELETING":
         raise HTTPException(
             status_code=400,
