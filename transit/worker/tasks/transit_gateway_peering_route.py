@@ -20,22 +20,20 @@ class TransitGatewayPeerringRouteIDToErrorOnRevertTask(task.Task):
     def execute(self, *args, **kwargs):
         pass
 
-    def revert(self, transit_gateway_peering_route_id, *args, **kwargs):
+    def revert(self, tgw_peering_route_id, *args, **kwargs):
 
-        logger.info(
-            f"Reverting TGW Peering Route {transit_gateway_peering_route_id} to ERROR"
-        )
+        logger.info(f"Reverting TGW Peering Route {tgw_peering_route_id} to ERROR")
 
         try:
             self.tgw_peer_route_repo.update(
-                ident=transit_gateway_peering_route_id,
+                ident=tgw_peering_route_id,
                 status="ERROR",
             )
         except Exception as e:
             print(e)
 
 
-class TransitGatewayPeeringRouteCreate(task.Task):
+class TransitGatewayPeeringRouteCreateTask(task.Task):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tgw_peer_route_repo = TransitGatewayPeeringRouteRepository()
@@ -45,6 +43,7 @@ class TransitGatewayPeeringRouteCreate(task.Task):
         destination_cidr,
         tgw_management_ip,
         remote_peering_interface_ip,
+        tgw_peering_route_id,
         *args,
         **kwargs,
     ):
@@ -56,6 +55,41 @@ class TransitGatewayPeeringRouteCreate(task.Task):
             )
         except Exception as e:
             raise e from e
+
+        self.tgw_peer_route_repo.update(ident=tgw_peering_route_id, status="ACTIVE")
+
+    def revert(self, *args, **kwargs):
+        pass
+
+
+class TransitGatewayPeeringRouteDeleteTask(task.Task):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tgw_peer_route_repo = TransitGatewayPeeringRouteRepository()
+
+    def execute(
+        self,
+        tgw_peering_route_id,
+        tgw_management_ip,
+        remote_peering_interface_ip,
+        *args,
+        **kwargs,
+    ):
+        tgw_peer_route = self.tgw_peer_route_repo.get(tgw_peering_route_id)
+
+        vytransit_driver = VyTransitDriver(tgw_management_ip)
+
+        print(tgw_peer_route.destination_cidr)
+        print(remote_peering_interface_ip)
+
+        try:
+            vytransit_driver.remove_vpc_route(
+                tgw_peer_route.destination_cidr, remote_peering_interface_ip
+            )
+        except Exception as e:
+            raise e from e
+
+        self.tgw_peer_route_repo.delete(tgw_peering_route_id)
 
     def revert(self, *args, **kwargs):
         pass
