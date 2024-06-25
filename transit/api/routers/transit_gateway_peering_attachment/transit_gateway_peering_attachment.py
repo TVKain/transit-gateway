@@ -188,6 +188,39 @@ def create(request: TransitGatewayPeeringAttachmentCreateRequest):
     return tgw_peer_attachment
 
 
+@router.get("/can-delete/{transit_gateway_peering_attachment_id}")
+def can_delete(transit_gateway_peering_attachment_id: str):
+    tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
+
+    try:
+        tgw_peer_attachment = tgw_peer_attachment_repo.get(
+            transit_gateway_peering_attachment_id
+        )
+
+        if not tgw_peer_attachment:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Transit Gateway Peering Attachment with ID {transit_gateway_peering_attachment_id} does not exist",
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Error occurred while fetching Transit Gateway Peering Attachment",
+        ) from e
+
+    tgw_peer_route_repo = TransitGatewayPeeringRouteRepository()
+
+    tgw_peer_routes = tgw_peer_route_repo.get_all(tgw_peer_attachment.id)
+
+    if len(tgw_peer_routes) > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Transit Gateway Peering Attachment has associated routes",
+        )
+
+    return {"can_delete": True}
+
+
 @router.delete("/{transit_gateway_peering_attachment_id}")
 def delete(transit_gateway_peering_attachment_id: str):
     tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
