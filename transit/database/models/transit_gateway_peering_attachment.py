@@ -33,6 +33,9 @@ class TransitGatewayPeeringAttachmentModel(SQLModel, table=True):
     # The IP address of the interface used to tunnel
     tunnel_interface_ip: Optional[str] = None
 
+    # The ID of the remote Region of the remote transit gateway
+    remote_region_id: Optional[str] = None
+
     # The IP address of the remote interface used to tunnel for the remote transit gateway
     remote_tunnel_interface_ip: Optional[str] = None
 
