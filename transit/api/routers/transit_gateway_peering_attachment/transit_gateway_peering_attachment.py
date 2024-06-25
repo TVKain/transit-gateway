@@ -205,6 +205,7 @@ def create(request: TransitGatewayPeeringAttachmentCreateRequest):
                 tun_ip=request.tun_ip,
                 tun_cidr=request.tun_cidr,
                 remote_tun_ip=request.remote_tun_ip,
+                remote_region_id=request.remote_region_id,
             )
         )
     except Exception as e:
