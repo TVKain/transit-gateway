@@ -177,7 +177,7 @@ def delete_transit_gateway_peering_route(tgw_peering_route_id: str):
 
     TransitGatewayPeeringRouteRepository().update(tgw_peering_route_id, "DELETING")
 
-    delete_transit_gateway_peering_attachment_task(
+    delete_transit_gateway_peering_attachment_task.delay(
         destination_cidr=tgw_peering_route.destination_cidr,
         tgw_management_ip=tgw.management_ip,
         remote_peering_interface_ip=tgw_peering_att.remote_tun_ip,
