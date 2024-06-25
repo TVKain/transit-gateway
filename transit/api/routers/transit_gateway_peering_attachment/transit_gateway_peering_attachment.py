@@ -188,7 +188,7 @@ def create(request: TransitGatewayPeeringAttachmentCreateRequest):
     return tgw_peer_attachment
 
 
-@router.get("/can-delete/{transit_gateway_peering_attachment_id}")
+@router.get("/can_delete/{transit_gateway_peering_attachment_id}")
 def can_delete(transit_gateway_peering_attachment_id: str):
     tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
 
