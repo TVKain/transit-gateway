@@ -19,6 +19,8 @@ class TransitGatewayPeeringAttachmentModel(SQLModel, table=True):
         default_factory=lambda: f"tgw-peer-att-{uuid.uuid4()}", primary_key=True
     )
 
+    remote_transit_gateway_peering_attachment_id: Optional[str] = None
+
     name: Optional[str] = None
 
     # Transit gateway for this peering attachment to be attached to

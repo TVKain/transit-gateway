@@ -9,6 +9,30 @@ class TransitGatewayPeeringAttachmentRepository:
     def __init__(self):
         self._db_adapter = DBAdapter()
 
+    def update_remote_peering_attachment_id(
+        self, ident: str, remote_transit_gateway_peering_attachment_id: str
+    ):
+        try:
+            with self._db_adapter.get_session() as session:
+                tgw_peer_attachment = (
+                    session.query(TransitGatewayPeeringAttachmentModel)
+                    .filter_by(id=ident)
+                    .first()
+                )
+
+                tgw_peer_attachment.remote_transit_gateway_peering_attachment_id = (
+                    remote_transit_gateway_peering_attachment_id
+                )
+
+                session.commit()
+                session.refresh(tgw_peer_attachment)
+                return TransitGatewayPeeringAttachmentModel.model_validate(
+                    tgw_peer_attachment
+                )
+        except Exception as e:
+            print(e)
+            raise e
+
     def get(self, ident: str):
         try:
             with self._db_adapter.get_session() as session:

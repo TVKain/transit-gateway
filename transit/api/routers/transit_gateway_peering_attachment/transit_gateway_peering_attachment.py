@@ -106,6 +106,21 @@ def get(transit_gateway_peering_attachment_id: str):
     return tgw_peer_attachment
 
 
+@router.patch("/{transit_gateway_peering_attachment_id}")
+def update_remote_transit_gateway_peering_attachment_id(
+    transit_gateway_peering_attachment_id: str,
+    remote_transit_gateway_peering_attachment_id: str,
+):
+    tgw_peer_att_repo = TransitGatewayPeeringAttachmentRepository()
+
+    tgw_peer_att = tgw_peer_att_repo.update_remote_peering_attachment_id(
+        transit_gateway_peering_attachment_id,
+        remote_transit_gateway_peering_attachment_id,
+    )
+
+    return tgw_peer_att
+
+
 @router.post("/")
 def create(request: TransitGatewayPeeringAttachmentCreateRequest):
     tgw_peer_attachment_repo = TransitGatewayPeeringAttachmentRepository()
